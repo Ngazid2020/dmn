@@ -46,4 +46,9 @@ class Patient extends Model
     {
         return trim("{$this->first_name} {$this->last_name}");
     }
+
+    public function hospitalizations()
+    {
+        return $this->hasMany(Hospitalization::class);
+    }
 }

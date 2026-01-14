@@ -30,4 +30,9 @@ class MedicalFile extends Model
             $medicalFile->reference = 'MF-' . now()->format('Ymd') . '-' . strtoupper(uniqid());
         });
     }
+
+    public function hospitalizations()
+    {
+        return $this->hasMany(Hospitalization::class);
+    }
 }
