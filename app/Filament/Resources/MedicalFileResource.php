@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MedicalFileResource\Pages;
+use App\Filament\Resources\MedicalFileResource\RelationManagers\ConsultationsRelationManager;
 use App\Models\MedicalFile;
 use App\Models\Patient;
 use Filament\Forms;
@@ -80,7 +81,7 @@ class MedicalFileResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // ConsultationRelationManager (plus tard)
+            ConsultationsRelationManager::class,
         ];
     }
 
