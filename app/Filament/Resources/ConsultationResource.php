@@ -17,7 +17,10 @@ use Filament\Forms\Components\{
     TextInput
 };
 use Filament\Resources\Resource;
+use Filament\Support\Colors\Color;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 
 class ConsultationResource extends Resource
@@ -44,7 +47,8 @@ class ConsultationResource extends Resource
                 ->afterStateUpdated(function ($state, callable $set) {
                     $patient = Patient::with('medicalFile')->find($state);
                     $set('medical_file_id', $patient?->medicalFile?->id);
-                }),
+                })
+                ->preload(),
 
             Hidden::make('medical_file_id')
                 ->required(),
@@ -56,7 +60,8 @@ class ConsultationResource extends Resource
                 ->label('Praticien')
                 ->relationship('practitioner', 'name')
                 ->searchable()
-                ->required(),
+                ->required()
+                ->preload(),
 
             /* =========================
              * DATE CONSULTATION
@@ -151,8 +156,23 @@ class ConsultationResource extends Resource
                     ->relationship('patient', 'first_name'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                    Action::make('ordonnance')
+                        ->label('Ordonnance PDF')
+                        ->icon('heroicon-o-document-arrow-down')
+                        ->color(Color::Amber)
+                        ->url(function ($record) {
+                            $prescription = $record->prescriptions()->first();
+
+                            return $prescription
+                                ? route('prescriptions.pdf', $prescription->id)
+                                : null;
+                        })
+                        ->openUrlInNewTab()
+                        ->visible(fn($record) => $record->prescriptions()->exists()),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
