@@ -123,6 +123,56 @@ class ConsultationResource extends Resource
                 ])
                 ->columns(1)
                 ->collapsible(),
+            Repeater::make('exams')
+                ->relationship()
+                ->label('Examens demandés')
+                ->schema([
+
+                    Select::make('type')
+                        ->label('Type')
+                        ->options([
+                            'biologie' => 'Biologie',
+                            'imagerie' => 'Imagerie',
+                            'autre' => 'Autre',
+                        ])
+                        ->required(),
+
+                    TextInput::make('name')
+                        ->label('Nom de l’examen')
+                        ->required(),
+
+                    Textarea::make('notes')
+                        ->label('Notes'),
+
+                    Select::make('status')
+                        ->label('Statut')
+                        ->options([
+                            'requested' => 'Demandé',
+                            'received' => 'Résultat reçu',
+                        ])
+                        ->default('requested'),
+
+                    Repeater::make('results')
+                        ->relationship()
+                        ->label('Résultats')
+                        ->schema([
+
+                            Textarea::make('result')
+                                ->label('Résultat'),
+
+                            Forms\Components\FileUpload::make('file')
+                                ->label('Fichier')
+                                ->directory('exam-results')
+                                ->openable()
+                                ->downloadable(),
+
+                            Forms\Components\DatePicker::make('result_date')
+                                ->label('Date du résultat'),
+                        ])
+                        ->collapsible(),
+                ])
+                ->collapsible()
+
         ]);
     }
 
