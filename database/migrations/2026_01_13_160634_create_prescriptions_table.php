@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('consultation_id')
                 ->constrained()
-                ->cascadeOnDelete(); // Supprime la prescription si la consultation est supprimée
+                ->cascadeOnDelete();
+            $table->foreignId('etablissement_id')->constrained()->cascadeOnDelete(); // Supprime la prescription si la consultation est supprimée
             $table->text('notes')->nullable();
             $table->timestamps();
         });

@@ -35,4 +35,9 @@ class MedicalFile extends Model
     {
         return $this->hasMany(Hospitalization::class);
     }
+
+    public function etablissement():BelongsTo
+    {
+        return $this->belongsTo(Etablissement::class);
+    }
 }

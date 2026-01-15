@@ -30,7 +30,7 @@ class HospitalizationResource extends Resource
         return $form->schema([
 
             Select::make('patient_id')
-                ->relationship('patient', 'full_name')
+                ->relationship('patient', 'first_name')
                 ->searchable()
                 ->required()
                 ->reactive()
@@ -40,7 +40,8 @@ class HospitalizationResource extends Resource
                         'medical_file_id',
                         \App\Models\Patient::find($state)?->medicalFile?->id
                     )
-                ),
+                )
+                ->preload(),
 
             Hidden::make('medical_file_id')->required(),
 

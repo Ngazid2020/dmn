@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Patient extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'first_name',
         'last_name',
@@ -50,5 +53,10 @@ class Patient extends Model
     public function hospitalizations()
     {
         return $this->hasMany(Hospitalization::class);
+    }
+
+    public function etablissement():BelongsTo
+    {
+        return $this->belongsTo(Etablissement::class);
     }
 }

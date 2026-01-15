@@ -40,4 +40,9 @@ class Hospitalization extends Model
     {
         return $this->hasMany(HospitalizationFollowUp::class);
     }
+
+    public function etablissement(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class);
+    }
 }

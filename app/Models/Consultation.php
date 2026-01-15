@@ -46,4 +46,9 @@ class Consultation extends Model
     {
         return $this->hasMany(Exam::class);
     }
+
+    public function etablissement(): BelongsTo
+    {
+        return $this->belongsTo(Etablissement::class);
+    }
 }

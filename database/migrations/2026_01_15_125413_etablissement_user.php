@@ -11,16 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('consultations', function (Blueprint $table) {
+        Schema::create('etablissement_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('medical_file_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('patient_id')->constrained()->cascadeOnDelete();
             $table->foreignId('etablissement_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->text('complaint')->nullable();
-            $table->text('diagnosis')->nullable();
-            $table->text('notes')->nullable();
-            $table->dateTime('consulted_at');
             $table->timestamps();
         });
     }
@@ -30,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('consultations');
+        Schema::dropIfExists('etablissement_user');
     }
 };
