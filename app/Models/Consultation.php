@@ -12,6 +12,7 @@ class Consultation extends Model
         'medical_file_id',
         'patient_id',
         'user_id',
+        'etablissement_id',
         'complaint',
         'diagnosis',
         'notes',
@@ -21,6 +22,10 @@ class Consultation extends Model
     protected $casts = [
         'consulted_at' => 'datetime',
     ];
+
+    // =========================
+    // RELATIONS
+    // =========================
 
     public function medicalFile(): BelongsTo
     {
@@ -42,7 +47,7 @@ class Consultation extends Model
         return $this->hasMany(Prescription::class);
     }
 
-    public function exams()
+    public function exams(): HasMany
     {
         return $this->hasMany(Exam::class);
     }
@@ -50,5 +55,25 @@ class Consultation extends Model
     public function etablissement(): BelongsTo
     {
         return $this->belongsTo(Etablissement::class);
+    }
+
+    // =========================
+    // MULTI-TENANCY GLOBAL SCOPE
+    // =========================
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('tenant', function ($query) {
+            if ($tenant = \Filament\Facades\Filament::getTenant()) {
+                $query->where('etablissement_id', $tenant->id);
+            }
+        });
+
+        // Optionnel : assigner automatiquement le tenant à la création
+        static::creating(function ($consultation) {
+            if ($tenant = \Filament\Facades\Filament::getTenant()) {
+                $consultation->etablissement_id = $tenant->id;
+            }
+        });
     }
 }

@@ -47,10 +47,14 @@ class ConsultationResource extends Resource
                 ->afterStateUpdated(function ($state, callable $set) {
                     $patient = Patient::with('medicalFile')->find($state);
                     $set('medical_file_id', $patient?->medicalFile?->id);
+                    $set('etablissement_id', $patient?->etablissement_id);
                 })
                 ->preload(),
 
-            Hidden::make('medical_file_id')
+            Hidden::make('medical_file_id')->required(),
+
+            Hidden::make('etablissement_id')
+                ->default(fn() => \Filament\Facades\Filament::getTenant()?->id)
                 ->required(),
 
             /* =========================
@@ -58,7 +62,12 @@ class ConsultationResource extends Resource
              * ========================= */
             Select::make('user_id')
                 ->label('Praticien')
-                ->relationship('practitioner', 'name')
+                ->relationship('practitioner', 'name', function ($query, $get) {
+                    // $get('etablissement_id') récupère l'établissement lié au patient
+                    $etablissementId = $get('etablissement_id') ?? \Filament\Facades\Filament::getTenant()?->id;
+
+                    return $query->whereHas('etablissements', fn($q) => $q->where('etablissements.id', $etablissementId));
+                })
                 ->searchable()
                 ->required()
                 ->preload(),
@@ -94,40 +103,34 @@ class ConsultationResource extends Resource
                 ->relationship()
                 ->label('Prescriptions')
                 ->schema([
-
                     Hidden::make('consultation_id'),
-
                     Textarea::make('notes')
                         ->label('Notes de prescription')
                         ->rows(2),
-
                     Repeater::make('items')
                         ->relationship()
                         ->label('Médicaments prescrits')
                         ->schema([
-
                             Hidden::make('prescription_id'),
-
                             TextInput::make('medicine')
                                 ->label('Médicament')
                                 ->required(),
-
-                            TextInput::make('dosage')
-                                ->label('Posologie'),
-
-                            TextInput::make('duration')
-                                ->label('Durée'),
+                            TextInput::make('dosage')->label('Posologie'),
+                            TextInput::make('duration')->label('Durée'),
                         ])
                         ->columns(3)
                         ->collapsible(),
                 ])
                 ->columns(1)
                 ->collapsible(),
+
+            /* =========================
+             * EXAMENS
+             * ========================= */
             Repeater::make('exams')
                 ->relationship()
                 ->label('Examens demandés')
                 ->schema([
-
                     Select::make('type')
                         ->label('Type')
                         ->options([
@@ -141,8 +144,7 @@ class ConsultationResource extends Resource
                         ->label('Nom de l’examen')
                         ->required(),
 
-                    Textarea::make('notes')
-                        ->label('Notes'),
+                    Textarea::make('notes')->label('Notes'),
 
                     Select::make('status')
                         ->label('Statut')
@@ -156,23 +158,18 @@ class ConsultationResource extends Resource
                         ->relationship()
                         ->label('Résultats')
                         ->schema([
-
-                            Textarea::make('result')
-                                ->label('Résultat'),
-
+                            Textarea::make('result')->label('Résultat'),
                             Forms\Components\FileUpload::make('file')
                                 ->label('Fichier')
                                 ->directory('exam-results')
                                 ->openable()
                                 ->downloadable(),
-
                             Forms\Components\DatePicker::make('result_date')
                                 ->label('Date du résultat'),
                         ])
                         ->collapsible(),
                 ])
-                ->collapsible()
-
+                ->collapsible(),
         ]);
     }
 
@@ -195,6 +192,14 @@ class ConsultationResource extends Resource
                 Tables\Columns\TextColumn::make('consulted_at')
                     ->label('Date')
                     ->dateTime(),
+
+                Tables\Columns\TextColumn::make('prescriptions_count')
+                    ->label('Nb Prescriptions')
+                    ->counts('prescriptions'),
+
+                Tables\Columns\TextColumn::make('exams_count')
+                    ->label('Nb Examens')
+                    ->counts('exams'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('user_id')
@@ -215,7 +220,6 @@ class ConsultationResource extends Resource
                         ->color(Color::Amber)
                         ->url(function ($record) {
                             $prescription = $record->prescriptions()->first();
-
                             return $prescription
                                 ? route('prescriptions.pdf', $prescription->id)
                                 : null;

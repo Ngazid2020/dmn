@@ -2,7 +2,14 @@
 
 namespace App\Providers\Filament;
 
-use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
+use App\Filament\Resources\AppointmentResource;
+use App\Filament\Resources\ConsultationResource;
+use App\Filament\Resources\HospitalizationFollowUpResource;
+use App\Filament\Resources\HospitalizationResource;
+use App\Filament\Resources\MedicalFileResource;
+use App\Filament\Resources\PatientResource;
+use App\Filament\Resources\PrescriptionResource;
+use App\Filament\Resources\UserResource;
 use App\Models\Etablissement;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -32,8 +39,6 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
@@ -56,9 +61,17 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->plugins([
-                FilamentSpatieRolesPermissionsPlugin::make(),
-            ])
-            ->tenant(Etablissement::class);
+            // ✅ MULTI-TENANCY MÉTIER
+            ->tenant(Etablissement::class)
+            ->resources([
+                PatientResource::class,
+                UserResource::class,
+                ConsultationResource::class,
+                HospitalizationResource::class,
+                HospitalizationFollowUpResource::class,
+                PrescriptionResource::class,
+                MedicalFileResource::class,
+                AppointmentResource::class,
+            ]);
     }
 }

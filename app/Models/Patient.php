@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,7 @@ class Patient extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'etablissement_id',
         'first_name',
         'last_name',
         'gender',
@@ -55,8 +57,17 @@ class Patient extends Model
         return $this->hasMany(Hospitalization::class);
     }
 
-    public function etablissement():BelongsTo
+    public function etablissement(): BelongsTo
     {
         return $this->belongsTo(Etablissement::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('tenant', function ($query) {
+            if ($tenant = Filament::getTenant()) {
+                $query->where('etablissement_id', $tenant->id);
+            }
+        });
     }
 }

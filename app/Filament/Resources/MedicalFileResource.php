@@ -27,12 +27,14 @@ class MedicalFileResource extends Resource
                 ->schema([
                     Forms\Components\Select::make('patient_id')
                         ->label('Patient')
-                        ->options(
-                            Patient::query()
+                        ->options(function () {
+                            $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+                            return Patient::query()
+                                ->when($tenantId, fn($q) => $q->where('etablissement_id', $tenantId))
                                 ->orderBy('first_name')
                                 ->get()
-                                ->pluck('full_name', 'id')
-                        )
+                                ->pluck('full_name', 'id');
+                        })
                         ->searchable()
                         ->required()
                         ->unique(ignoreRecord: true),
@@ -72,11 +74,13 @@ class MedicalFileResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+
                 Tables\Actions\Action::make('pdf')
                     ->label('PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->url(fn($record) => route('medical-files.pdf', $record))
                     ->openUrlInNewTab()
+                    ->visible(fn($record) => $record !== null),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

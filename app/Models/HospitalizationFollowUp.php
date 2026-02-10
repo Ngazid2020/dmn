@@ -19,6 +19,9 @@ class HospitalizationFollowUp extends Model
         'date' => 'date',
     ];
 
+    /**
+     * Relation avec l'hospitalisation parente.
+     */
     public function hospitalization(): BelongsTo
     {
         return $this->belongsTo(Hospitalization::class);

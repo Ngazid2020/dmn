@@ -15,18 +15,44 @@ class Etablissement extends Model
         'slug',
     ];
 
-    public function users():BelongsToMany
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
     }
 
-    public function appointments():HasMany
+    public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
     }
 
-    public function patients():HasMany
+    public function patients(): HasMany
     {
         return $this->hasMany(Patient::class);
+    }
+
+    public function medicalFiles(): HasMany
+    {
+        return $this->hasMany(MedicalFile::class);
+    }
+
+    public function consultations(): HasMany
+    {
+        return $this->hasMany(Consultation::class);
+    }
+    public function hospitalizations(): HasMany
+    {
+        return $this->hasMany(Hospitalization::class);
+    }
+
+    public function hospitalizationFollowUps()
+    {
+        return $this->hasManyThrough(
+            \App\Models\HospitalizationFollowUp::class,
+            \App\Models\Hospitalization::class,
+            'etablissement_id', // clé étrangère sur Hospitalization
+            'hospitalization_id', // clé étrangère sur HospitalizationFollowUp
+            'id', // clé locale sur Etablissement
+            'id' // clé locale sur Hospitalization
+        );
     }
 }
