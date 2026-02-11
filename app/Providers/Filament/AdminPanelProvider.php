@@ -62,7 +62,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             // ✅ MULTI-TENANCY MÉTIER
-            ->tenant(Etablissement::class)
+            ->tenant(Etablissement::class, 'slug')
             ->resources([
                 PatientResource::class,
                 UserResource::class,
