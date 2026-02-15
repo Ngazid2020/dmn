@@ -9,7 +9,8 @@ use Filament\Forms\Form;
 use Filament\Forms\Components\{
     Select,
     DateTimePicker,
-    Textarea
+    Textarea,
+    TextInput
 };
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -34,6 +35,7 @@ class AppointmentResource extends Resource
                 ->label('Patient')
                 ->relationship('patient', 'first_name')
                 ->searchable()
+                ->preload()
                 ->required(),
 
             /* =========================
