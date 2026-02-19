@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         $etablissement = Etablissement::factory()->create([
             'name' => 'Etablissement 1',
+            'slug' => 'etablissement-1',
         ]);
 
         $admin = User::factory()->create([
